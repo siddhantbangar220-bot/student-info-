@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ML Mini Project — Student Performance Predictor</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #F8FAFC;
+      color: #1E293B;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Top Navigation Bar */
+    .topbar {
+      background-color: #0284C7;
+      background: linear-gradient(90deg, #0284C7 0%, #0369A1 100%);
+      color: #FFFFFF;
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    }
+    .topbar-logo {
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .topbar-sub {
+      font-size: 14px;
+      font-weight: 400;
+      opacity: 0.9;
+      border-left: 1px solid rgba(255, 255, 255, 0.35);
+      padding-left: 12px;
+      margin-left: 4px;
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 32px 24px 64px 24px;
+    }
+
+    /* Hero Section */
+    .hero {
+      margin-bottom: 28px;
+    }
+    .hero-title {
+      font-size: 26px;
+      font-weight: 700;
+      color: #0F172A;
+      margin-bottom: 8px;
+    }
+    .hero-desc {
+      font-size: 14.5px;
+      color: #475569;
+      margin-bottom: 16px;
+      max-width: 960px;
+      line-height: 1.6;
+    }
+    .badges-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .badge {
+      font-size: 12.5px;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+    }
+    .badge-blue {
+      background-color: #EFF6FF;
+      color: #2563EB;
+      border: 1px solid #BFDBFE;
+    }
+    .badge-green {
+      background-color: #ECFDF5;
+      color: #059669;
+      border: 1px solid #A7F3D0;
+    }
+    .badge-amber {
+      background-color: #FFFBEB;
+      color: #D97706;
+      border: 1px solid #FDE68A;
+    }
+
+    /* Section Headers */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 32px 0 16px 0;
+    }
+    .section-bar {
+      width: 4px;
+      height: 20px;
+      background-color: #0284C7;
+      border-radius: 2px;
+    }
+    .section-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #0F172A;
+    }
+
+    /* Grid Systems */
+    .grid-6 {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    /* Cards */
+    .card {
+      background-color: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 8px;
+      padding: 22px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    }
+    .card-title {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: #1E293B;
+      margin-bottom: 16px;
+    }
+    .metric-card {
+      background-color: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 8px;
+      padding: 20px 14px;
+      text-align: center;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    }
+    .metric-val {
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .metric-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #64748B;
+      margin-top: 6px;
+    }
+
+    .val-blue { color: #0284C7; }
+    .val-red { color: #DC2626; }
+    .val-orange { color: #EA580C; }
+    .val-green { color: #16A34A; }
+
+    /* Callout Note Box */
+    .callout-amber {
+      background-color: #FFFDF5;
+      border-left: 3px solid #F59E0B;
+      padding: 12px 16px;
+      border-radius: 4px;
+      font-size: 12.5px;
+      color: #78350F;
+      line-height: 1.5;
+      margin-top: 16px;
+    }
+
+    /* Distribution Progress Bars */
+    .dist-row {
+      margin-bottom: 14px;
+    }
+    .dist-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    .dist-label {
+      font-weight: 600;
+    }
+    .dist-count {
+      color: #64748B;
+      font-weight: 500;
+    }
+    .progress-track {
+      width: 100%;
+      height: 7px;
+      background-color: #F1F5F9;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 4px;
+    }
+    .fill-red { background-color: #DC2626; }
+    .fill-orange { background-color: #F59E0B; }
+    .fill-green { background-color: #16A34A; }
+
+    /* Correlation Grid */
+    .corr-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .corr-box {
+      border-radius: 6px;
+      padding: 12px 8px;
+      text-align: center;
+    }
+    .corr-box-blue {
+      background-color: #E0F2FE;
+      color: #0369A1;
+    }
+    .corr-box-red {
+      background-color: #FEE2E2;
+      color: #991B1B;
+    }
+    .corr-box-green {
+      background-color: #DCFCE7;
+      color: #15803D;
+      grid-column: span 3;
+      padding: 10px;
+    }
+    .corr-val {
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .corr-lbl {
+      font-size: 11.5px;
+      margin-top: 2px;
+      opacity: 0.9;
+    }
+
+    /* Tables */
+    .custom-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+    .custom-table th {
+      font-size: 11px;
+      font-weight: 700;
+      color: #475569;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      padding: 10px 12px;
+      border-bottom: 1px solid #E2E8F0;
+    }
+    .custom-table td {
+      padding: 11px 12px;
+      border-bottom: 1px solid #F1F5F9;
+      color: #1E293B;
+    }
+    .custom-table tr:hover {
+      background-color: #F8FAFC;
+    }
+
+    /* Confusion Matrix */
+    .cm-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+      font-size: 12.5px;
+      margin-top: 8px;
+    }
+    .cm-table th {
+      font-size: 11px;
+      font-weight: 600;
+      color: #475569;
+      padding: 8px;
+      background-color: #F8FAFC;
+    }
+    .cm-table td {
+      padding: 10px 8px;
+      border: 1px solid #E2E8F0;
+      font-weight: 600;
+    }
+    .cm-highlight-blue {
+      background-color: #0284C7;
+      color: #FFFFFF;
+    }
+    .cm-highlight-red {
+      background-color: #FEE2E2;
+      color: #DC2626;
+    }
+    .cm-empty {
+      color: #94A3B8;
+    }
+
+    /* Feature Importance Bars */
+    .fi-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+      gap: 12px;
+    }
+    .fi-label {
+      width: 120px;
+      font-size: 12.5px;
+      color: #334155;
+      font-family: monospace;
+    }
+    .fi-bar-wrap {
+      flex: 1;
+      height: 14px;
+      background-color: #F1F5F9;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .fi-bar {
+      height: 100%;
+      background-color: #7C3AED;
+      border-radius: 4px;
+    }
+    .fi-val {
+      width: 45px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #475569;
+      text-align: right;
+    }
+
+    /* Badges in tables */
+    .badge-pill {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11.5px;
+      font-weight: 600;
+    }
+    .pill-high {
+      background-color: #DCFCE7;
+      color: #166534;
+    }
+    .pill-medium {
+      background-color: #FEF3C7;
+      color: #92400E;
+    }
+    .pill-low {
+      background-color: #FEE2E2;
+      color: #991B1B;
+    }
+
+    /* Search input */
+    .search-box {
+      width: 100%;
+      max-width: 340px;
+      padding: 8px 14px 8px 34px;
+      font-size: 13px;
+      border: 1px solid #CBD5E1;
+      border-radius: 6px;
+      outline: none;
+      background: #FFFFFF url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%2394A3B8" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>') no-repeat 10px center;
+      margin-bottom: 16px;
+    }
+    .search-box:focus {
+      border-color: #0284C7;
+      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
+    }
+
+    @media (max-width: 900px) {
+      .grid-6 { grid-template-columns: repeat(3, 1fr); }
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .grid-6 { grid-template-columns: repeat(2, 1fr); }
+      .container { padding: 16px 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <div class="topbar">
+    <div class="topbar-logo">
+      <span>📚</span> ML Mini Project
+    </div>
+    <div class="topbar-sub">
+      Student Performance Predictor — Real Survey Data Output
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Hero Section -->
+    <div class="hero">
+      <h1 class="hero-title">Can Lifestyle Habits Predict CGPA Band?</h1>
+      <p class="hero-desc">
+        Data collected from <strong>53 students</strong> of our class via Google Form survey. We used study hours, attendance, sleep, stress, backlogs, and phone usage to predict whether a student falls in <strong>Low, Medium, or High CGPA band</strong>.
+      </p>
+
+      <div class="badges-row">
+        <span class="badge badge-blue">53 Real Students</span>
+        <span class="badge badge-blue">3 ML Models Compared</span>
+        <span class="badge badge-blue">5-Fold Cross Validation</span>
+        <span class="badge badge-green">Best: Random Forest — 90.9% Acc</span>
+        <span class="badge badge-amber">CV Accuracy: 88.3%</span>
+      </div>
+    </div>
+
+    <!-- Overview Section -->
+    <div class="section-header">
+      <div class="section-bar"></div>
+      <div class="section-title">Overview</div>
+    </div>
+
+    <div class="grid-6">
+      <div class="metric-card">
+        <div class="metric-val val-blue">53</div>
+        <div class="metric-label">Total Students</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val val-blue">42</div>
+        <div class="metric-label">Training Records</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val val-blue">11</div>
+        <div class="metric-label">Test Records</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val val-red">14</div>
+        <div class="metric-label">Low CGPA (&lt; 6.5)</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val val-orange">7</div>
+        <div class="metric-label">Medium CGPA (6.5–8.0)</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val val-green">32</div>
+        <div class="metric-label">High CGPA (≥ 8.0)</div>
+      </div>
+    </div>
+
+    <div style="width: 170px; margin-bottom: 24px;">
+      <div class="metric-card">
+        <div class="metric-val val-green">90.9%</div>
+        <div class="metric-label">Test Accuracy</div>
+      </div>
+    </div>
+
+    <!-- 1. Data Analysis (EDA) -->
+    <div class="section-header">
+      <div class="section-bar"></div>
+      <div class="section-title">1. Data Analysis (EDA)</div>
+    </div>
+
+    <div class="grid-2">
+      <!-- Class Distribution Card -->
+      <div class="card">
+        <div class="card-title">Class Distribution of CGPA Band (N=53)</div>
+        
+        <div class="dist-row">
+          <div class="dist-meta">
+            <span class="dist-label" style="color: #DC2626;">Low CGPA (&lt; 6.5)</span>
+            <span class="dist-count">14 students — 26.4%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill fill-red" style="width: 26.4%;"></div>
+          </div>
+        </div>
+
+        <div class="dist-row">
+          <div class="dist-meta">
+            <span class="dist-label" style="color: #EA580C;">Medium CGPA (6.5 – 8.0)</span>
+            <span class="dist-count">7 students — 13.2%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill fill-orange" style="width: 13.2%;"></div>
+          </div>
+        </div>
+
+        <div class="dist-row">
+          <div class="dist-meta">
+            <span class="dist-label" style="color: #16A34A;">High CGPA (≥ 8.0)</span>
+            <span class="dist-count">32 students — 60.4%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill fill-green" style="width: 60.4%;"></div>
+          </div>
+        </div>
+
+        <div class="callout-amber">
+          Most of our class (60%) falls in the High band. The Medium band is small which makes classification harder for that group — the model struggled most with Medium class students.
+        </div>
+      </div>
+
+      <!-- Feature Correlation Card -->
+      <div class="card">
+        <div class="card-title">Feature Correlation with CGPA (Real Data)</div>
+        <div class="corr-grid">
+          <div class="corr-box corr-box-blue">
+            <div class="corr-val">+0.97</div>
+            <div class="corr-lbl">Study Hours</div>
+          </div>
+          <div class="corr-box corr-box-blue">
+            <div class="corr-val">+0.93</div>
+            <div class="corr-lbl">Attendance %</div>
+          </div>
+          <div class="corr-box corr-box-blue">
+            <div class="corr-val">+0.31</div>
+            <div class="corr-lbl">Sleep Hours</div>
+          </div>
+          <div class="corr-box corr-box-red">
+            <div class="corr-val">-0.84</div>
+            <div class="corr-lbl">Backlogs</div>
+          </div>
+          <div class="corr-box corr-box-red">
+            <div class="corr-val">-0.83</div>
+            <div class="corr-lbl">Phone Hours</div>
+          </div>
+          <div class="corr-box corr-box-red">
+            <div class="corr-val">-0.49</div>
+            <div class="corr-lbl">Stress Level</div>
+          </div>
+          <div class="corr-box corr-box-green">
+            <div class="corr-val">1.00 (target)</div>
+            <div class="corr-lbl">CGPA</div>
+          </div>
+        </div>
+        <div class="callout-amber">
+          In our real class data, <strong>study hours (r=+0.97)</strong> is the strongest predictor — even stronger than attendance. Phone hours and backlogs are strongly negative.
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Categorical Feature Summary -->
+    <div class="section-header">
+      <div class="section-bar"></div>
+      <div class="section-title">2. Categorical Feature Summary</div>
+    </div>
+
+    <div class="grid-2">
+      <!-- Categorical Table -->
+      <div class="card">
+        <div class="card-title">Extracurricular, Study Mode, Online Courses</div>
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Category</th>
+              <th>Count</th>
+              <th>%</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td rowspan="2" style="font-weight: 600;">Extracurricular</td>
+              <td>No</td>
+              <td>28</td>
+              <td>52.8%</td>
+            </tr>
+            <tr>
+              <td>Yes</td>
+              <td>25</td>
+              <td>47.2%</td>
+            </tr>
+            <tr>
+              <td rowspan="3" style="font-weight: 600;">Study Mode</td>
+              <td>Alone</td>
+              <td>21</td>
+              <td>39.6%</td>
+            </tr>
+            <tr>
+              <td>Both</td>
+              <td>16</td>
+              <td>30.2%</td>
+            </tr>
+            <tr>
+              <td>Group</td>
+              <td>16</td>
+              <td>30.2%</td>
+            </tr>
+            <tr>
+              <td rowspan="2" style="font-weight: 600;">Online Courses</td>
+              <td>Yes</td>
+              <td>45</td>
+              <td>84.9%</td>
+            </tr>
+            <tr>
+              <td>No</td>
+              <td>8</td>
+              <td>15.1%</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="callout-amber">
+          Most students (85%) are enrolled in online courses. Study mode is fairly split between Alone and Group/Both.
+        </div>
+      </div>
+
+      <!-- CGPA Range Card -->
+      <div class="card">
+        <div class="card-title">CGPA Range in Our Class</div>
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Minimum CGPA</td>
+              <td><strong style="color: #DC2626;">5.11</strong> (Om Jave)</td>
+            </tr>
+            <tr>
+              <td>Maximum CGPA</td>
+              <td><strong style="color: #16A34A;">9.70</strong> (Harshankit, Priya, Sharvay, Shubham)</td>
+            </tr>
+            <tr>
+              <td>Average CGPA</td>
+              <td><strong>7.94</strong></td>
+            </tr>
+            <tr>
+              <td>Students above 9.0</td>
+              <td>10 students</td>
+            </tr>
+            <tr>
+              <td>Students below 6.0</td>
+              <td>5 students</td>
+            </tr>
+            <tr>
+              <td>Total responses</td>
+              <td>53 students</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="callout-amber">
+          Our class average is 7.94 which is fairly good. 4 students achieved the maximum 9.70 CGPA.
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Model Comparison -->
+    <div class="section-header">
+      <div class="section-bar"></div>
+      <div class="section-title">3. Model Comparison (5-Fold Stratified Cross Validation)</div>
+    </div>
+
+    <div class="card">
+      <div style="font-size: 13px; color: #64748B; margin-bottom: 12px; font-weight: 600;">Results — 3 Models, Same 80/20 Train-Test Split</div>
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>CV Accuracy (5-Fold)</th>
+            <th>Test Accuracy</th>
+            <th>Test F1 (Macro)</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="background-color: #F0FDF4;">
+            <td style="color: #16A34A; font-weight: 700;">✓ Random Forest (n=300)</td>
+            <td><strong>88.3%</strong></td>
+            <td><strong>90.9%</strong></td>
+            <td>0.644</td>
+            <td style="color: #16A34A; font-weight: 500;">Highest CV accuracy — most reliable</td>
+          </tr>
+          <tr>
+            <td style="font-weight: 600;">Logistic Regression</td>
+            <td>85.8%</td>
+            <td>90.9%</td>
+            <td>0.644</td>
+            <td style="color: #64748B;">Equal test accuracy, lower CV stability</td>
+          </tr>
+          <tr>
+            <td style="font-weight: 600;">KNN (k=5)</td>
+            <td>83.6%</td>
+            <td>90.9%</td>
+            <td>0.644</td>
+            <td style="color: #64748B;">Lowest CV score, sensitive to scale</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="callout-amber">
+        All 3 models got equal test accuracy (90.9%) on our 11-student test set. We picked <strong>Random Forest</strong> as the best because it had the highest CV accuracy (88.3%) meaning it generalizes better on unseen data. The low Macro F1 is because there is only 1 Medium student in the test set so that class dragged the score down.
+      </div>
+    </div>
+
+    <!-- 4. Best Model Evaluation -->
+    <div class="section-header">
+      <div class="section-bar"></div>
+      <div class="section-title">4. Best Model Evaluation — Random Forest</div>
+    </div>
+
+    <div class="grid-2">
+      <!-- Confusion Matrix -->
+      <div class="card">
+        <div class="card-title">Confusion Matrix (Test Set, N=11)</div>
+        <table class="cm-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>PRED: LOW</th>
+              <th>PRED: MEDIUM</th>
+              <th>PRED: HIGH</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="text-align: left; font-weight: 600; color: #475569;">Actual: Low (3)</td>
+              <td class="cm-highlight-blue">3</td>
+              <td class="cm-empty">0</td>
+              <td class="cm-empty">0</td>
+            </tr>
+            <tr>
+              <td style="text-align: left; font-weight: 600; color: #475569;">Actual: Medium (1)</td>
+              <td class="cm-empty">0</td>
+              <td class="cm-empty">0</td>
+              <td class="cm-highlight-red">1</td>
+            </tr>
+            <tr>
+              <td style="text-align: left; font-weight: 600; color: #475569;">Actual: High (7)</td>
+              <td class="cm-empty">0</td>
+              <td class="cm-empty">0</td>
+              <td class="cm-highlight-blue">7</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="callout-amber">
+          Only 1 mistake out of 11 — the single Medium student got predicted as High. This is expected since Medium is very underrepresented in our data (only 7 out of 53). No Low student was ever called High or vice versa.
+        </div>
+      </div>
+
+      <!-- Feature Importance -->
+      <div class="card">
+        <div class="card-title">Feature Importance (Gini Impurity) — What Matters Most?</div>
+        
+        <div class="fi-item">
+          <div class="fi-label">study_hours</div>
+          <div class="fi-bar-wrap">
+            <div class="fi-bar" style="width: 27.3%;"></div>
+          </div>
+          <div class="fi-val">27.3%</div>
+        </div>
+
+        <div class="fi-item">
+          <div class="fi-label">attendance_pct</div>
+          <div class="fi-bar-wrap">
+            <div class="fi-bar" style="width: 23.2%;"></div>
+          </div>
+          <div class="fi-val">23.2%</div>
+        </div>
+
+        <div class="fi-item">
+          <div class="fi-label">phone_hours</div>
+          <div class="fi-bar-wrap">
+            <div class="fi-bar" style="width: 15.3%;"></div>
+          </div>
+          <div class="fi-val">15.3%</div>
+        </div>
+
+        <div class="fi-item">
+          <div class="fi-label">backlogs</div>
+          <div class="fi-bar-wrap">
+            <div class="fi-bar" style="width: 14.5%;"></div>
+          </div>
+          <div class="fi-val">14.5%</div>
+        </div>
+
+        <div class="fi-item">
+          <div class="fi-label">stress_level</div>
+          <div class="fi-bar-wrap">
+            <div class="fi-bar" style="width: 6.1%;"></div>
+          </div>
+          <div class="fi-val">6.1%</div>
+        </div>
+
+        <div class="fi-item">
+          <div class="fi-label">sleep_hours</div>
+          <div class="fi-bar-wrap">
+            <div class="fi-bar" style="width: 3.3%;"></div>
+          </div>
+          <div class="fi-val">3.3%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Per-Class Report -->
+    <div class="section-header">
+      <div class="section-bar"></div>
+      <div class="section-title">5. Per-Class Report</div>
+    </div>
+
+    <div class="card">
+      <div style="font-size: 13px; color: #64748B; margin-bottom: 12px; font-weight: 600;">Precision / Recall / F1 for Each CGPA Band — Random Forest on Test Set</div>
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>CGPA Band</th>
+            <th>Precision</th>
+            <th>Recall</th>
+            <th>F1-Score</th>
+            <th>Support (Test Set)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="color: #DC2626; font-weight: 700;">Low (&lt; 6.5)</td>
+            <td>1.00</td>
+            <td>1.00</td>
+            <td>1.00</td>
+            <td>3</td>
+          </tr>
+          <tr>
+            <td style="color: #EA580C; font-weight: 700;">Medium (6.5–8.0)</td>
+            <td>0.00</td>
+            <td>0.00</td>
+            <td>0.00</td>
+            <td>1 <span style="color: #94A3B8; font-size: 11px;">(only 1 sample)</span></td>
+          </tr>
+          <tr>
+            <td style="color: #16A34A; font-weight: 700;">High (≥ 8.0)</td>
+            <td>0.88</td>
+            <td>1.00</td>
+            <td>0.93</td>
+            <td>7</td>
+          </tr>
+          <tr style="border-top: 2px solid #E2E8F0; font-weight: 600;">
+            <td>Macro Avg</td>
+            <td>0.63</td>
+            <td>0.67</td>
+            <td>0.64</td>
+            <td>11</td>
+          </tr>
+          <tr style="font-weight: 600;">
+            <td>Weighted Avg</td>
+            <td>0.81</td>
+            <td>0.91</td>
+            <td>0.85</td>
+            <td>11</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="callout-amber">
+        Medium class F1 is 0.00 because there is only <strong>1 Medium student in the test set</strong> and they were misclassified as High. This is a data limitation — we need more Medium CGPA students in future surveys. Low and High classes performed perfectly or near-perfectly.
+      </div>
+    </div>
+
+    <!-- 6. Raw Survey Data -->
+    <div class="section-header">
+      <div class="section-bar"></div>
+      <div class="section-title">6. All 53 Students — Raw Survey Data</div>
+    </div>
+
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+        <div style="font-size: 14px; font-weight: 700; color: #1E293B; margin-bottom: 12px;">Full Dataset (sorted by CGPA)</div>
+      </div>
+      <input type="text" id="searchInput" class="search-box" placeholder="Search by name, CGPA, band..." onkeyup="filterTable()">
+
+      <div style="overflow-x: auto;">
+        <table class="custom-table" id="studentsTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Study Hrs</th>
+              <th>Sleep Hrs</th>
+              <th>Phone Hrs</th>
+              <th>Attend %</th>
+              <th>Backlogs</th>
+              <th>Stress</th>
+              <th>Extracurr.</th>
+              <th>Study Mode</th>
+              <th>Online Course</th>
+              <th>CGPA</th>
+              <th>Band</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <!-- Injected via JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const studentsData = [
+      { name: "Harshankit Dhumal", study: 6.5, sleep: 7, phone: 4.5, attend: 98, backlogs: 0, stress: 2, extra: "Yes", mode: "Both", online: "Yes", cgpa: 9.7, band: "High" },
+      { name: "Priya Karne", study: 6, sleep: 5.5, phone: 4.5, attend: 97, backlogs: 0, stress: 4, extra: "Yes", mode: "Both", online: "Yes", cgpa: 9.7, band: "High" },
+      { name: "Sharvay Kodam", study: 6.5, sleep: 7, phone: 3.5, attend: 98, backlogs: 0, stress: 2, extra: "Yes", mode: "Both", online: "Yes", cgpa: 9.7, band: "High" },
+      { name: "Shubham Waghmare", study: 6.5, sleep: 8, phone: 3.5, attend: 91, backlogs: 0, stress: 4, extra: "Yes", mode: "Alone", online: "Yes", cgpa: 9.7, band: "High" },
+      { name: "Tejas Nagware", study: 6, sleep: 7.5, phone: 2.5, attend: 92, backlogs: 0, stress: 3, extra: "Yes", mode: "Alone", online: "Yes", cgpa: 9.62, band: "High" },
+      { name: "Vijay Dhumal", study: 6.5, sleep: 8, phone: 4.5, attend: 94, backlogs: 0, stress: 3, extra: "No", mode: "Alone", online: "Yes", cgpa: 9.52, band: "High" },
+      { name: "Abhishek Mane", study: 5.5, sleep: 6.5, phone: 4.5, attend: 96, backlogs: 0, stress: 3, extra: "No", mode: "Alone", online: "Yes", cgpa: 9.52, band: "High" },
+      { name: "Santosh Bangar", study: 6, sleep: 6, phone: 5, attend: 96, backlogs: 0, stress: 2, extra: "No", mode: "Group", online: "Yes", cgpa: 9.51, band: "High" },
+      { name: "Atharva Kulkarni", study: 6, sleep: 7.5, phone: 3, attend: 91, backlogs: 0, stress: 2, extra: "Yes", mode: "Alone", online: "Yes", cgpa: 9.49, band: "High" },
+      { name: "Swayam Dhamal", study: 6.5, sleep: 7.5, phone: 3, attend: 96, backlogs: 0, stress: 2, extra: "Yes", mode: "Alone", online: "Yes", cgpa: 9.37, band: "High" },
+      { name: "Sumit Sankpal", study: 6, sleep: 8, phone: 3, attend: 88, backlogs: 0, stress: 4, extra: "Yes", mode: "Alone", online: "Yes", cgpa: 9.34, band: "High" },
+      { name: "Sai Karale", study: 6, sleep: 6, phone: 3.5, attend: 89, backlogs: 0, stress: 2, extra: "No", mode: "Both", online: "Yes", cgpa: 9.21, band: "High" },
+      { name: "Vaishnavi Bade", study: 5.5, sleep: 8.5, phone: 5.5, attend: 95, backlogs: 0, stress: 2, extra: "No", mode: "Group", online: "Yes", cgpa: 9.15, band: "High" },
+      { name: "Mayur Kadam", study: 5.5, sleep: 5.5, phone: 5.5, attend: 86, backlogs: 0, stress: 5, extra: "Yes", mode: "Both", online: "Yes", cgpa: 9.08, band: "High" },
+      { name: "Karan Shinde", study: 6, sleep: 7, phone: 2.5, attend: 93, backlogs: 0, stress: 2, extra: "Yes", mode: "Both", online: "Yes", cgpa: 9.03, band: "High" },
+      { name: "Anushka Bangar", study: 6, sleep: 8, phone: 2.5, attend: 87, backlogs: 0, stress: 3, extra: "No", mode: "Group", online: "Yes", cgpa: 8.99, band: "High" },
+      { name: "Atharva Dhavde", study: 5.5, sleep: 6, phone: 3, attend: 90, backlogs: 0, stress: 3, extra: "Yes", mode: "Group", online: "Yes", cgpa: 8.97, band: "High" },
+      { name: "Nitin Dhage", study: 5, sleep: 7.5, phone: 4, attend: 86, backlogs: 0, stress: 1, extra: "No", mode: "Alone", online: "Yes", cgpa: 8.95, band: "High" },
+      { name: "Ananya Joshi", study: 5.5, sleep: 8.5, phone: 4, attend: 86, backlogs: 0, stress: 3, extra: "Yes", mode: "Both", online: "Yes", cgpa: 8.9, band: "High" },
+      { name: "Ritesh Pawar", study: 5.5, sleep: 6.5, phone: 5.5, attend: 91, backlogs: 0, stress: 4, extra: "Yes", mode: "Both", online: "Yes", cgpa: 8.74, band: "High" },
+      { name: "Rutika Bhosale", study: 5, sleep: 6.5, phone: 4.5, attend: 90, backlogs: 0, stress: 1, extra: "No", mode: "Group", online: "Yes", cgpa: 8.73, band: "High" },
+      { name: "Divya Thorat", study: 5.5, sleep: 6.5, phone: 3, attend: 88, backlogs: 0, stress: 3, extra: "No", mode: "Alone", online: "Yes", cgpa: 8.72, band: "High" },
+      { name: "Pratik Aware", study: 5.5, sleep: 8.5, phone: 4, attend: 86, backlogs: 0, stress: 4, extra: "No", mode: "Both", online: "Yes", cgpa: 8.64, band: "High" },
+      { name: "Aarohi Bangar", study: 5, sleep: 7.5, phone: 5.5, attend: 90, backlogs: 0, stress: 2, extra: "Yes", mode: "Alone", online: "Yes", cgpa: 8.62, band: "High" },
+      { name: "Amol Bade", study: 5, sleep: 7, phone: 6, attend: 90, backlogs: 0, stress: 1, extra: "No", mode: "Both", online: "Yes", cgpa: 8.48, band: "High" },
+      { name: "Sneha Deshmukh", study: 5, sleep: 7.5, phone: 5, attend: 85, backlogs: 0, stress: 3, extra: "Yes", mode: "Alone", online: "Yes", cgpa: 8.45, band: "High" },
+      { name: "Pooja More", study: 4, sleep: 6.5, phone: 4, attend: 83, backlogs: 0, stress: 3, extra: "No", mode: "Group", online: "Yes", cgpa: 8.35, band: "High" },
+      { name: "Komal Chavan", study: 4, sleep: 7.5, phone: 6, attend: 82, backlogs: 0, stress: 1, extra: "No", mode: "Alone", online: "Yes", cgpa: 8.27, band: "High" },
+      { name: "Akash Nair", study: 4.5, sleep: 5, phone: 4, attend: 82, backlogs: 0, stress: 4, extra: "Yes", mode: "Both", online: "Yes", cgpa: 8.21, band: "High" },
+      { name: "Tejaswini Pawar", study: 4, sleep: 8, phone: 6.5, attend: 85, backlogs: 0, stress: 1, extra: "Yes", mode: "Group", online: "Yes", cgpa: 8.18, band: "High" },
+      { name: "Atharva Pawar", study: 4.5, sleep: 7, phone: 4.5, attend: 83, backlogs: 0, stress: 3, extra: "No", mode: "Alone", online: "Yes", cgpa: 8.13, band: "High" },
+      { name: "Vaishnavi Bhekare", study: 4, sleep: 7, phone: 6.5, attend: 88, backlogs: 0, stress: 3, extra: "Yes", mode: "Both", online: "Yes", cgpa: 8.08, band: "High" },
+      { name: "Sakshi Nikam", study: 4.5, sleep: 7.5, phone: 6, attend: 84, backlogs: 0, stress: 1, extra: "No", mode: "Group", online: "Yes", cgpa: 7.98, band: "Medium" },
+      { name: "Subhash Bade", study: 3, sleep: 5.5, phone: 5, attend: 82, backlogs: 0, stress: 4, extra: "No", mode: "Both", online: "No", cgpa: 7.84, band: "Medium" },
+      { name: "Shravan Autade", study: 4, sleep: 5.5, phone: 4, attend: 78, backlogs: 0, stress: 5, extra: "Yes", mode: "Group", online: "Yes", cgpa: 7.81, band: "Medium" },
+      { name: "Saurabh Gaikwad", study: 2.5, sleep: 6.5, phone: 8, attend: 75, backlogs: 0, stress: 1, extra: "Yes", mode: "Alone", online: "Yes", cgpa: 7.4, band: "Medium" },
+      { name: "Neha Ghorpade", study: 2.5, sleep: 7, phone: 7.5, attend: 80, backlogs: 0, stress: 3, extra: "No", mode: "Alone", online: "No", cgpa: 7.36, band: "Medium" },
+      { name: "Riya Sakunke", study: 3, sleep: 5, phone: 7.5, attend: 78, backlogs: 1, stress: 4, extra: "No", mode: "Group", online: "Yes", cgpa: 7.17, band: "Medium" },
+      { name: "Omkar Shinde", study: 2.5, sleep: 5.5, phone: 7, attend: 78, backlogs: 0, stress: 5, extra: "No", mode: "Group", online: "No", cgpa: 7.11, band: "Medium" },
+      { name: "Rohan Jadhav", study: 1.5, sleep: 7, phone: 7.5, attend: 74, backlogs: 1, stress: 2, extra: "No", mode: "Both", online: "Yes", cgpa: 6.38, band: "Low" },
+      { name: "Ayush Autade", study: 1.5, sleep: 6, phone: 8, attend: 66, backlogs: 1, stress: 4, extra: "No", mode: "Alone", online: "Yes", cgpa: 6.18, band: "Low" },
+      { name: "Ishwari Rajebhosle", study: 2, sleep: 5.5, phone: 7.5, attend: 73, backlogs: 3, stress: 5, extra: "No", mode: "Group", online: "No", cgpa: 6.07, band: "Low" },
+      { name: "Siddhant Bangar", study: 1.5, sleep: 6, phone: 7.5, attend: 74, backlogs: 2, stress: 4, extra: "Yes", mode: "Alone", online: "Yes", cgpa: 6.06, band: "Low" },
+      { name: "Pranav Patil", study: 1.5, sleep: 5, phone: 8, attend: 70, backlogs: 2, stress: 5, extra: "No", mode: "Group", online: "Yes", cgpa: 6.04, band: "Low" },
+      { name: "Chandrashaker", study: 2, sleep: 6, phone: 8, attend: 74, backlogs: 2, stress: 4, extra: "Yes", mode: "Alone", online: "Yes", cgpa: 5.95, band: "Low" },
+      { name: "Vinay Dashiki", study: 2, sleep: 5.5, phone: 6.5, attend: 71, backlogs: 2, stress: 4, extra: "Yes", mode: "Alone", online: "No", cgpa: 5.9, band: "Low" },
+      { name: "Aditya Salunke", study: 2, sleep: 6.5, phone: 6, attend: 78, backlogs: 4, stress: 4, extra: "No", mode: "Group", online: "No", cgpa: 5.84, band: "Low" },
+      { name: "Rushi Lashkare", study: 1.5, sleep: 5.5, phone: 6.5, attend: 75, backlogs: 3, stress: 4, extra: "No", mode: "Group", online: "No", cgpa: 5.78, band: "Low" },
+      { name: "Gaurav Sarak", study: 1.5, sleep: 7.5, phone: 7, attend: 75, backlogs: 4, stress: 4, extra: "No", mode: "Both", online: "Yes", cgpa: 5.55, band: "Low" },
+      { name: "Yash Sawant", study: 2, sleep: 8, phone: 8, attend: 76, backlogs: 4, stress: 5, extra: "Yes", mode: "Group", online: "Yes", cgpa: 5.45, band: "Low" },
+      { name: "Vedant Bangar", study: 1, sleep: 6, phone: 7.5, attend: 62, backlogs: 1, stress: 4, extra: "No", mode: "Alone", online: "No", cgpa: 5.44, band: "Low" },
+      { name: "Nikhil Kale", study: 1.5, sleep: 7.5, phone: 8, attend: 72, backlogs: 4, stress: 5, extra: "No", mode: "Both", online: "Yes", cgpa: 5.14, band: "Low" },
+      { name: "Om Jave", study: 1, sleep: 7, phone: 8, attend: 61, backlogs: 3, stress: 4, extra: "Yes", mode: "Alone", online: "Yes", cgpa: 5.11, band: "Low" }
+    ];
+
+    function renderTable(data) {
+      const tbody = document.getElementById("tableBody");
+      tbody.innerHTML = "";
+      data.forEach((s, idx) => {
+        const tr = document.createElement("tr");
+        let pillClass = "pill-high";
+        if (s.band === "Medium") pillClass = "pill-medium";
+        if (s.band === "Low") pillClass = "pill-low";
+
+        tr.innerHTML = `
+          <td style="color: #64748B;">${idx + 1}</td>
+          <td><strong>${s.name}</strong></td>
+          <td>${s.study}</td>
+          <td>${s.sleep}</td>
+          <td>${s.phone}</td>
+          <td>${s.attend}%</td>
+          <td>${s.backlogs}</td>
+          <td>${s.stress}</td>
+          <td>${s.extra}</td>
+          <td>${s.mode}</td>
+          <td>${s.online}</td>
+          <td><strong>${s.cgpa.toFixed(2)}</strong></td>
+          <td><span class="badge-pill ${pillClass}">${s.band}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterTable() {
+      const query = document.getElementById("searchInput").value.toLowerCase();
+      const filtered = studentsData.filter(s => 
+        s.name.toLowerCase().includes(query) ||
+        s.cgpa.toString().includes(query) ||
+        s.band.toLowerCase().includes(query) ||
+        s.mode.toLowerCase().includes(query)
+      );
+      renderTable(filtered);
+    }
+
+    // Initial render
+    renderTable(studentsData);
+  </script>
+</body>
+</html>
+
